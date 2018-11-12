@@ -62,3 +62,29 @@ optional arguments:
                         Extensions to be used. Use --list_extensions options
                         to find the corresponding number
 ```
+
+### RSA Server
+* Usage
+  ```
+    usage: server_rsa.py [-h] [-s CERT] [-k [KEY]] [-r RESPONSE] [-c CIPHERSUITE]
+                        host port
+
+    positional arguments:
+    host
+    port
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    -s CERT, --cert CERT  Server certificate
+    -k [KEY], --key [KEY]
+                            Server Key
+    -r RESPONSE, --response RESPONSE
+                            Response file
+    -c CIPHERSUITE, --ciphersuite CIPHERSUITE
+                            Ciphersuite to be used.
+  ```
+
+* Example
+    ```
+    python server_rsa.py 127.0.0.1 8443 -c RSA_WITH_AES_128_CBC_SHA -s keys/cert.der -k keys/key.pem -r README.md
+    ```
