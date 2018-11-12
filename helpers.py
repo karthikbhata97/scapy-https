@@ -406,6 +406,23 @@ def get_cs(idx):
 	return cs
 
 
+def get_all_ciphers(cs_type):
+    cs_type = cs_type.upper()
+
+    cs_all = []
+    names = []
+    for i in range(len(ciphersuites)):
+        if cs_type in ciphersuites[i]:
+            cs_all.append(getattr(scapy.layers.ssl_tls.TLSCipherSuite, ciphersuites[i]))
+            names.append(ciphersuites[i])
+    
+    print('%d ciphersuites found' % (len(names),))
+    for item in names:
+        print(item)
+
+    return cs_all
+
+
 if __name__ == '__main__':
 
 	print(repr(get_ext(0)))

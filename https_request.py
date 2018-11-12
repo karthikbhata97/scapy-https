@@ -123,6 +123,8 @@ if __name__ == "__main__":
     parser.add_argument('--ciphersuites_name', type=str, nargs='*', help='Ciphersuite to be used.')
 
     parser.add_argument('--extensions_name', type=str, nargs='*', help='Extensions to be used.')
+
+    parser.add_argument('--cipher_type', type=str, nargs=1, help='Type of ciphersuites to be used.')
     
     args = parser.parse_args()
 
@@ -146,7 +148,13 @@ if __name__ == "__main__":
             extensions.append(TLSExtension()/tmp_ext())
             
     ciphers = []
-    if args.ciphersuites:
+    if args.cipher_type:
+        ciphers = helpers.get_all_ciphers(args.cipher_type[0])
+        
+        if len(ciphers) == 0:
+            print('No such ciphersuites')
+            sys.exit(0)
+    elif args.ciphersuites:
         for c in args.ciphersuites:
             ciphers.append(helpers.get_cs(c))
     elif args.ciphersuites_name:
