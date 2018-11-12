@@ -1,5 +1,6 @@
 from __future__ import print_function
 from scapy.layers.ssl_tls import *
+import scapy.layers.ssl_tls as scapy_ssl
 import argparse
 import sys
 import helpers
@@ -108,27 +109,57 @@ if __name__ == "__main__":
     parser.add_argument('--list_ciphersuites', action=ciphersuites_action(), nargs=0)
     parser.add_argument('-a', '--list_all', action=all_action(), nargs=0)
 
-    parser.add_argument('-v', '--version', type=int, nargs=1, help='Version number to be used. \
+    parser.add_argument('-v', '--version', type=int, nargs='*', help='Version number to be used. \
                         Use --list_versions options to find the corresponding number')
 
-    parser.add_argument('-c', '--ciphersuites', type=int, nargs='+', help='Ciphersuite to be used. \
+    parser.add_argument('-c', '--ciphersuites', type=int, nargs='*', help='Ciphersuite to be used. \
                         Use --list_ciphersuites options to find the corresponding number')
 
     parser.add_argument('-e', '--extensions', type=int, nargs='*', help='Extensions to be used. \
                         Use --list_extensions options to find the corresponding number')
 
+    parser.add_argument('--version_name', type=str, nargs='?', help='Version number to be used.')
+
+    parser.add_argument('--ciphersuites_name', type=str, nargs='*', help='Ciphersuite to be used.')
+
+    parser.add_argument('--extensions_name', type=str, nargs='*', help='Extensions to be used.')
+    
     args = parser.parse_args()
 
-    tls_version = helpers.get_version(args.version[0])
+    print(args)
+
+    if args.version:
+        tls_version = helpers.get_version(args.version[0])
+    elif args.version_name:
+        tls_version = getattr(TLSVersion, args.version_name)
+    else:
+        tls_version = getattr(TLSVersion, 'TLS_1_2')
+
     extensions = []
     if args.extensions:
         for e in args.extensions:
             tmp_ext = helpers.get_ext(e)
             extensions.append(TLSExtension()/tmp_ext())
-
+    elif args.extensions_name:
+        for name in args.extensions_name:
+            tmp_ext = getattr(scapy_ssl, name)
+            extensions.append(TLSExtension()/tmp_ext())
+            
     ciphers = []
-    for c in args.ciphersuites:
-        ciphers.append(helpers.get_cs(c))
+    if args.ciphersuites:
+        for c in args.ciphersuites:
+            ciphers.append(helpers.get_cs(c))
+    elif args.ciphersuites_name:
+        for c in args.ciphersuites_name:
+            cs = getattr(TLSCipherSuite, c)
+            ciphers.append(cs)
+    else:
+        ciphers.append(helpers.get_cs(179))
+        tmp_ext = helpers.get_ext(4)
+        extensions.append(TLSExtension()/tmp_ext())
+        tmp_ext = helpers.get_ext(18)
+        extensions.append(TLSExtension()/tmp_ext())
+
 
     host = args.host[0]
     port = args.port[0]
@@ -140,7 +171,7 @@ if __name__ == "__main__":
         with open(req, 'r') as f:
             req = f.read()
 
-        req = req.replace('\n', '\r\n')
+        req = req.replace('\r', '\r\n')
     elif args.url:
         url = args.url
         print(url)
