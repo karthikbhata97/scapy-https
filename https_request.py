@@ -5,6 +5,7 @@ import argparse
 import sys
 import helpers
 
+CONTEXT = False
 
 def tls_client(ip, request, tls_version, ciphers, extensions):
     resp = None
@@ -22,6 +23,9 @@ def tls_client(ip, request, tls_version, ciphers, extensions):
             else:
                 resp = tls_socket.do_round_trip(TLSPlaintext(data=request))
                 tls_socket.close()
+
+        if CONTEXT:
+            print(tls_socket.tls_ctx)
     return resp
 
 def run(server, req, tls_version, ciphers, extensions, resp_file):
@@ -126,9 +130,12 @@ if __name__ == "__main__":
 
     parser.add_argument('--cipher_type', type=str, nargs=1, help='Type of ciphersuites to be used.')
     
+    parser.add_argument('--context', help='Print TLS context.', action='store_true')
+    
     args = parser.parse_args()
 
-    print(args)
+    if args.context:
+        CONTEXT = True
 
     if args.version:
         tls_version = helpers.get_version(args.version[0])
