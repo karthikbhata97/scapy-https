@@ -186,7 +186,7 @@ if __name__ == "__main__":
         with open(req, 'r') as f:
             req = f.read()
 
-        req = req.replace('\r', '\r\n')
+        req = req.replace('\n', '\r\n')
     elif args.url:
         url = args.url
         print(url)
